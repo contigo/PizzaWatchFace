@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2017 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,4 +39,13 @@
     <string name="bottom_right_ranged_image_view">bottom right ranged image view</string>
     <string name="bottom_right_ranged_image_button">bottom right ranged image button</string>
     <string name="hollow">Hollow</string>
+
+    <string name="message">헬로우 월드입니다 </string>
+    <string name="title_activity_energency">긴급알림이</string>
+    <!--
+    This string is used for square devices and overridden by hello_world in
+    values-round/strings.xml for round devices.
+    -->
+    <string name="hello_world">Hello Square World!</string>
+    <string name="hello_world_sub">Hello Square World sub!</string>
 </resources>
