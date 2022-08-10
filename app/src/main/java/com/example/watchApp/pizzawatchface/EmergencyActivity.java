@@ -1,4 +1,4 @@
-package com.example.pizzawatchface;
+package com.example.watchApp.pizzawatchface;
 
 import android.app.Activity;
 import android.app.WallpaperManager;
@@ -10,44 +10,37 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Vibrator;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.pizzawatchface.databinding.ActivityEnergencyBinding;
+import com.example.watchApp.pizzawatchface.databinding.ActivityEmergencyBinding;
+import com.example.watchApp.pizzawatchface.mqtt.MqttActivity;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class EnergencyActivity extends Activity {
-
+public class EmergencyActivity extends Activity  {
     private TextView mTextView, countText;
     private ImageButton mSosicon;
     private CountDownTimer countDownTimer = null;
 
-    private ActivityEnergencyBinding binding;
+    private ActivityEmergencyBinding binding;
+    private GoogleApiClient googleApiClient;
+    private boolean wearableConnected = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityEnergencyBinding.inflate(getLayoutInflater());
+        binding = ActivityEmergencyBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         mTextView = binding.text;
         mSosicon = binding.sosIcon;
         countText = binding.countText;
-//        mSosicon.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> sos icon click ");
-//                Toast.makeText(getApplicationContext(), "imageView click ", Toast.LENGTH_SHORT).show();
-//            }
-//        });
 
         mTextView.setText("SOS 호출 실행");
         Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -55,7 +48,7 @@ public class EnergencyActivity extends Activity {
         anim.setRepeatCount(Animation.INFINITE);
         final AtomicInteger atomicCount = new AtomicInteger(0);
 
-        mSosicon.setOnTouchListener(new View.OnTouchListener() {
+     /*   mSosicon.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -104,15 +97,15 @@ public class EnergencyActivity extends Activity {
                 return false;
             }
         });
+*/
 
-
-        /*mSosicon.setOnClickListener(new View.OnClickListener() {
+        mSosicon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pickYourWatchFace(getApplicationContext());
+                Intent i = new Intent(EmergencyActivity.this, MqttActivity.class);
+                startActivity(i);
             }
-        });*/
-
+        });
 
 
         if (!hasGps()) {
@@ -121,13 +114,14 @@ public class EnergencyActivity extends Activity {
             // warn the user that location function is not available.
         }else
             Log.d("MyWatch", ">>>>>>>>> This hardware have GPS.");
+
     }
 
     private boolean hasGps() {
         return getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
     }
 
-//TODO: 바로 워피페이스 설정화면으로 이동한다
+    // 바로 워피페이스 설정화면으로 이동한다
     public static void pickYourWatchFace(Context context) {
         ComponentName yourWatchFace = new ComponentName(context, MyWatchFace.class);
         Intent intent = new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
@@ -135,5 +129,6 @@ public class EnergencyActivity extends Activity {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
+
 
 }

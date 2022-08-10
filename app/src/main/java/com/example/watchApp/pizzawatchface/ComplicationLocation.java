@@ -1,7 +1,7 @@
-package com.example.pizzawatchface;
+package com.example.watchApp.pizzawatchface;
 
 /**
- * Used by associated watch face ({@link com.example.pizzawatchface.PizzaWatchFaceService}) to let this
+ * Used by associated watch face ({@link com.example.watchApp.pizzawatchface.PizzaWatchFaceService}) to let this
  * configuration Activity know which complication locations are supported, their ids, and
  * supported complication data types.
  */

@@ -5,9 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/box_inset_layout_padding"
-    tools:context=".EnergencyActivity"
+    tools:context=".EmergencyActivity"
     tools:deviceIds="wear">
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -22,10 +21,10 @@
 
 
             <ImageButton
-                android:id="@+id/sos_icon"
+                android:id="@+id/imgicon"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/icon_soscall"
+                android:background="@drawable/ic_full_sad"
                 tools:ignore="SpeakableTextPresentCheck" />
 
             <TextView

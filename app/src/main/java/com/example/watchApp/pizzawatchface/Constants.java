@@ -1,4 +1,4 @@
-package com.example.pizzawatchface;
+package com.example.watchApp.pizzawatchface;
 
 import android.support.wearable.complications.ComplicationData;
 import java.util.concurrent.TimeUnit;
@@ -56,4 +56,6 @@ public class Constants {
     // Update rate in milliseconds for interactive mode. We update rarely to avoid wasting battery
     public static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(15);
     public static final int MSG_UPDATE_TIME = 0;
+
+    public static final String TAG ="MyWatch";
 }

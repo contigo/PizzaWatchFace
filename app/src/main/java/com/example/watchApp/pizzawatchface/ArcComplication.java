@@ -1,4 +1,4 @@
-package com.example.pizzawatchface;
+package com.example.watchApp.pizzawatchface;
 
 import android.content.Context;
 import android.graphics.Canvas;

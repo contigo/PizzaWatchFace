@@ -1,4 +1,4 @@
-package com.example.pizzawatchface;
+package com.example.watchApp.pizzawatchface;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -22,14 +22,13 @@ import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.view.SurfaceHolder;
-import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
-import static com.example.pizzawatchface.Constants.*;
-import static com.example.pizzawatchface.ComplicationLocation.*;
+import static com.example.watchApp.pizzawatchface.Constants.*;
+import static com.example.watchApp.pizzawatchface.ComplicationLocation.*;
 
 import androidx.core.content.ContextCompat;
 

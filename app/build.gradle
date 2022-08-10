@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    compileSdk 30
+    compileSdk 28
 
     defaultConfig {
-        applicationId "com.example.pizzawatchface"
-        minSdk 26
+        applicationId "com.example.watchApp.pizzawatchface"
+        minSdk 28
         targetSdk 30
         versionCode 1
         versionName "1.0"
@@ -23,18 +23,48 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+
 }
 
 dependencies {
 
+    //noinspection GradleCompatible
     implementation 'com.google.android.gms:play-services-wearable:17.1.0'
     implementation 'androidx.percentlayout:percentlayout:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
-    implementation 'com.google.android.support:wearable:2.8.1'
-    implementation 'com.google.android.gms:play-services-base:17.6.0'
+    implementation 'com.google.android.support:wearable:2.9.0'
+    implementation 'com.google.android.gms:play-services-base:18.1.0'
     implementation 'androidx.palette:palette:1.0.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.wear:wear:1.1.0'
-    compileOnly 'com.google.android.wearable:wearable:2.8.1'
+    implementation 'com.google.android.gms:play-services-location:20.0.0'
+    implementation 'com.google.firebase:firebase-crashlytics-buildtools:2.9.1'
+    compileOnly 'com.google.android.wearable:wearable:2.9.0'
+
+
+    //타일설정
+        /*// Use to implement support for wear tiles
+        implementation "androidx.wear.tiles:tiles:1.1.0-beta01"
+        // Use to utilize components and layouts with Material design in your tiles
+        implementation "androidx.wear.tiles:tiles-material:1.1.0-beta01"
+        // Use to preview wear tiles in your own app
+        debugImplementation "androidx.wear.tiles:tiles-renderer:1.1.0-beta01"
+        // Use to fetch tiles from a tile provider in your tests
+        testImplementation "androidx.wear.tiles:tiles-testing:1.1.0-beta01"
+        implementation "com.google.guava:guava:31.0.1-android"*/
+
+
+// MQTT라이브러리
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
+    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
+
+    implementation 'com.google.code.gson:gson:2.8.9'
+
 }
