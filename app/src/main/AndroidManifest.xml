@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.watchApp.pizzawatchface">
 
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <uses-feature android:name="android.hardware.type.watch" />
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
@@ -17,11 +18,17 @@
     <uses-permission android:name="android.permission.VIBRATE" /> <!-- Required for complications to receive complication data and open the provider chooser. -->
     <uses-permission android:name="com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA" />
 
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/icon_soscall"
         android:label="@string/app_name"
         android:supportsRtl="true"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:usesCleartextTraffic="true"
         android:theme="@android:style/Theme.DeviceDefault">
         <uses-library
             android:name="com.google.android.wearable"
@@ -38,7 +45,7 @@
         <activity
             android:name=".mqtt.MqttActivity"
             android:exported="false"
-            android:label="@string/title_activity_mqtt"></activity>
+            android:label="@string/title_activity_mqtt"/>
         <activity
             android:name=".LocationActivity"
             android:exported="true" />
@@ -48,13 +55,25 @@
             android:label="@string/title_activity_emergency">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <service android:name="org.eclipse.paho.android.service.MqttService" >
-        </service>
+        <service android:name="org.eclipse.paho.android.service.MqttService" />
+        <service android:name=".mqtt.MyMqttService" android:exported="true" />
+        <activity
+            android:name=".ComplicationConfigActivity"
+            android:exported="false"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="com.example.android.wearable.watchface.CONFIG_COMPLICATION" />
+
+                <category android:name="com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".tile.TileActivity" />
+
 
         <service
             android:name=".PizzaWatchFaceService"
@@ -97,6 +116,27 @@
                 android:resource="@layout/round_activity_location" />
         </service>
 
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="location|microphone|dataSync"
+            tools:node="merge" />
+
+       <!-- <service android:name=".mqtt.DataLayerListenerService"
+            android:enabled="true"
+            android:exported="true"          >
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.CAPABILITY_CHANGED" />
+                <data android:scheme="wear" android:host="*"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/PREF"/>
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/start"/>
+            </intent-filter>
+        </service>-->
+
+
         <activity
             android:name="android.support.wearable.complications.ComplicationHelperActivity"
             android:exported="false" />
@@ -105,18 +145,8 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity
-            android:name=".ComplicationConfigActivity"
-            android:exported="false"
-            android:label="@string/app_name">
-            <intent-filter>
-                <action android:name="com.example.android.wearable.watchface.CONFIG_COMPLICATION" />
 
-                <category android:name="com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".tile.TileActivity" />
+
     </application>
 
 </manifest>

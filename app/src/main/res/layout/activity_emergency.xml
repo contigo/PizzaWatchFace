@@ -14,44 +14,64 @@
         android:padding="@dimen/inner_frame_layout_padding"
         app:layout_boxedEdges="all">
 
-        <RelativeLayout
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="center">
+            android:layout_height="match_parent">
 
 
-            <ImageButton
-                android:id="@+id/sos_icon"
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/icon_soscall"
-                tools:ignore="SpeakableTextPresentCheck" />
-
-            <TextView
-                android:id="@+id/countText"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_centerHorizontal="true"
-                android:gravity="right|center_vertical"
-                android:shadowColor="@android:color/black"
-                android:shadowDx="5"
-                android:shadowDy="5"
-                android:shadowRadius="3"
-                android:text="1"
-                android:textColor="#F9E29D"
-                android:textSize="80dp"
-                android:textStyle="bold"
-                android:visibility="gone"
-                />
-
-            <TextView
-                android:id="@+id/text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/hello_world" />
+                android:gravity="center"
+                android:orientation="vertical">
 
 
-        </RelativeLayout>
+                <ImageButton
+                    android:id="@+id/sos_icon"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:background="@drawable/icon_soscall"
+                    tools:ignore="SpeakableTextPresentCheck"
+                    android:layout_centerHorizontal="true"/>
+
+                <TextView
+                    android:id="@+id/countText"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerHorizontal="true"
+                    android:gravity="right|center_vertical"
+                    android:shadowColor="@android:color/black"
+                    android:shadowDx="5"
+                    android:shadowDy="5"
+                    android:shadowRadius="3"
+                    android:text="1"
+                    android:textColor="#F9E29D"
+                    android:textSize="80dp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hello_world" />
+
+                <Button
+                    android:id="@+id/btnLocation"
+                    android:layout_height="match_parent"
+                    android:layout_width="match_parent"
+                    android:text="로케이션"
+                    android:layout_below="@+id/sos_icon"
+                    />
+                <Button
+                    android:id="@+id/btnMqtt"
+                    android:layout_height="match_parent"
+                    android:layout_width="match_parent"
+                    android:text="MQTT"
+                    android:layout_below="@+id/btnLocation"
+                    />
+
+            </RelativeLayout>
+        </ScrollView>
     </FrameLayout>
 </androidx.wear.widget.BoxInsetLayout>

@@ -13,36 +13,11 @@
         android:padding="@dimen/inner_frame_layout_padding"
         app:layout_boxedEdges="all">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:gravity="center">
-
-
-            <ImageButton
-                android:id="@+id/imgicon"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/ic_full_sad"
-                tools:ignore="SpeakableTextPresentCheck" />
-
-            <TextView
-                android:id="@+id/countText"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_centerHorizontal="true"
-                android:gravity="right|center_vertical"
-                android:shadowColor="@android:color/black"
-                android:shadowDx="5"
-                android:shadowDy="5"
-                android:shadowRadius="3"
-                android:text="1"
-                android:textColor="#F9E29D"
-                android:textSize="80dp"
-                android:textStyle="bold"
-                android:visibility="gone"
-                />
 
             <TextView
                 android:id="@+id/text"
@@ -50,7 +25,22 @@
                 android:layout_height="wrap_content"
                 android:text="@string/hello_world" />
 
+            <Button
+                android:id="@+id/btn1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="버튼1"
+                />
 
-        </RelativeLayout>
+            <Button
+                android:id="@+id/btn2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="버튼2"
+                />
+
+
+
+        </LinearLayout>
     </FrameLayout>
 </androidx.wear.widget.BoxInsetLayout>

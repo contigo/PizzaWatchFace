@@ -10,11 +10,14 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Vibrator;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.watchApp.pizzawatchface.databinding.ActivityEmergencyBinding;
 import com.example.watchApp.pizzawatchface.mqtt.MqttActivity;
@@ -22,10 +25,11 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class EmergencyActivity extends Activity  {
+public class EmergencyActivity extends Activity implements View.OnClickListener  {
     private TextView mTextView, countText;
     private ImageButton mSosicon;
     private CountDownTimer countDownTimer = null;
+    private Button btnLocation , btnMqtt;
 
     private ActivityEmergencyBinding binding;
     private GoogleApiClient googleApiClient;
@@ -41,6 +45,12 @@ public class EmergencyActivity extends Activity  {
         mTextView = binding.text;
         mSosicon = binding.sosIcon;
         countText = binding.countText;
+        btnLocation = binding.btnLocation;
+        btnMqtt = binding.btnMqtt;
+
+        btnLocation.setOnClickListener(this);
+        btnMqtt.setOnClickListener(this);
+
 
         mTextView.setText("SOS 호출 실행");
         Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -48,7 +58,7 @@ public class EmergencyActivity extends Activity  {
         anim.setRepeatCount(Animation.INFINITE);
         final AtomicInteger atomicCount = new AtomicInteger(0);
 
-     /*   mSosicon.setOnTouchListener(new View.OnTouchListener() {
+        mSosicon.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -81,6 +91,9 @@ public class EmergencyActivity extends Activity  {
                             vibrator.vibrate(300);
                             countText.setVisibility(View.GONE);
                             Toast.makeText(getApplicationContext(), "SOS 호출이 실행되었습니다", Toast.LENGTH_SHORT).show();
+
+                            Intent i = new Intent(EmergencyActivity.this, MqttActivity.class);
+                            startActivity(i);
                         }
                     };
                     countDownTimer.start();
@@ -97,15 +110,15 @@ public class EmergencyActivity extends Activity  {
                 return false;
             }
         });
-*/
 
-        mSosicon.setOnClickListener(new View.OnClickListener() {
+
+      /*  mSosicon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(EmergencyActivity.this, MqttActivity.class);
                 startActivity(i);
             }
-        });
+        });*/
 
 
         if (!hasGps()) {
@@ -131,4 +144,14 @@ public class EmergencyActivity extends Activity  {
     }
 
 
+    @Override
+    public void onClick(View v) {
+        Intent i = null;
+        if(v.getId() == btnLocation.getId() ){
+             i = new Intent(EmergencyActivity.this, LocationActivity.class);
+        }else if(v.getId() == btnMqtt.getId() ){
+            i = new Intent(EmergencyActivity.this, MqttActivity.class);
+        }
+            startActivity(i);
+    }
 }
