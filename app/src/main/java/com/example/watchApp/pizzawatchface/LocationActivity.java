@@ -5,6 +5,7 @@ import static com.example.watchApp.pizzawatchface.Constants.TAG;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -13,12 +14,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
+import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.os.PowerManager;
+import android.os.SystemClock;
+import android.provider.AlarmClock;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -28,6 +37,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
@@ -40,12 +50,14 @@ import androidx.work.WorkRequest;
 import com.example.watchApp.pizzawatchface.databinding.ActivityLocationBinding;
 import com.example.watchApp.pizzawatchface.http.HttpRequest;
 import com.example.watchApp.pizzawatchface.http.HttpUtils;
+import com.example.watchApp.pizzawatchface.mqtt.AlarmBroadcastReceiver;
 import com.example.watchApp.pizzawatchface.mqtt.MyMqttService;
 import com.example.watchApp.pizzawatchface.util.AppInfoCallback;
 import com.example.watchApp.pizzawatchface.util.AppInfoInterface;
 import com.example.watchApp.pizzawatchface.work.NetWorkCheckWorker;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
@@ -59,6 +71,9 @@ import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -71,12 +86,15 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class LocationActivity extends Activity implements  View.OnClickListener, DataClient.OnDataChangedListener{
-    private Button btn1 , btn2;
+public class LocationActivity extends Activity implements  View.OnClickListener, LocationListener  {
+    private Button btn1 , btn2, btn3;
     private TextView mText;
 
     public  FusedLocationProviderClient fusedLocationClient;
     private ActivityLocationBinding binding;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -91,9 +109,11 @@ public class LocationActivity extends Activity implements  View.OnClickListener,
         mText = binding.text;
         btn1 = binding.btn1;
         btn2 = binding.btn2;
+        btn3 = binding.btn3;
 
         btn1.setOnClickListener(this);
         btn2.setOnClickListener(this);
+        btn3.setOnClickListener(this);
 
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -102,8 +122,6 @@ public class LocationActivity extends Activity implements  View.OnClickListener,
                             Manifest.permission.ACCESS_COARSE_LOCATION },
                     1);
             return;
-        }else {
-            Toast.makeText(LocationActivity.this, "!!!!!!!!! p check!!!!! ", Toast.LENGTH_SHORT).show();
         }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(LocationActivity.this);
@@ -123,8 +141,25 @@ public class LocationActivity extends Activity implements  View.OnClickListener,
                 });
 
         initRet();
+        if(!isIgnoringBatteryOptimizations(this)) {
+            showToast("베터리 최적화 권한!!");
+            Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+            intent.setData(Uri.parse("package:" + getPackageName()));
+            startActivity(intent);
+        }else{
+            showToast("베터리 최적화!");
+        }
     }
 
+
+
+    public boolean isIgnoringBatteryOptimizations(Context context) {
+        PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return powerManager.isIgnoringBatteryOptimizations(context.getPackageName());
+        }
+        return true;
+    }
 
     @SuppressLint("MissingPermission")
     public void updateLocation(){
@@ -158,6 +193,9 @@ public class LocationActivity extends Activity implements  View.OnClickListener,
                 locationCallback,
                 Looper.getMainLooper());
         Log.d(TAG, ">>>>>>>>>>> updateLocation start");
+
+
+
     }
 
 
@@ -230,7 +268,7 @@ public class LocationActivity extends Activity implements  View.OnClickListener,
 
                     }
                 });
-        
+
         req.execute(LocationActivity.this);
     }
 
@@ -295,19 +333,87 @@ public class LocationActivity extends Activity implements  View.OnClickListener,
     @Override
     public void onClick(View v) {
         if(v.getId() == btn1.getId()){
-            Context context = getApplicationContext();
-            Intent intent = new Intent(getApplicationContext(), MyMqttService.class);
-            intent.setAction(MyMqttService.ACTION_START);
-            startForegroundService(intent);
-
+            startService(MyMqttService.ACTION_START);
         }else if(v.getId() == btn2.getId()){
-//            checkNetworkInfo();
-            Intent intent = new Intent(getApplicationContext(), MyMqttService.class);
-            intent.setAction(MyMqttService.ACTION_END);
-            stopService(intent);
-
-
+          stopService();
+          endAlarmManager();
+        }else if(v.getId() == btn3.getId()){
+             startAlarmManager();
         }
+    }
+
+    private void endAlarmManager() {
+        if (alarmIntent != null && alarmMgr != null) {
+            Log.d(TAG, ">>>>>>>>> endAlarm " + alarmIntent);
+            alarmMgr.cancel(alarmIntent);
+            isSetAlarm = false;
+        }
+            Intent intent = new Intent( getApplicationContext(), AlarmBroadcastReceiver.class);
+            intent.setAction(AlarmBroadcastReceiver.END_BROADCAST);
+            sendBroadcast(intent);
+    }
+
+
+    // 사운드 모드 설정
+    private void setSoundMode() {
+        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+        audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE); //진동모드로 변경
+
+        String mode = null;
+        switch (audioManager.getRingerMode()){
+            case AudioManager.RINGER_MODE_NORMAL: mode ="노말모드"; break;
+            case AudioManager.RINGER_MODE_VIBRATE: mode ="진동모드"; break;
+            case AudioManager.RINGER_MODE_SILENT: mode ="무음모드"; break;
+        }
+
+        showToast("현재 사운드 설정 : "+mode );
+    }
+
+
+    private boolean isSetAlarm = false;
+    private PendingIntent alarmIntent;
+    private AlarmManager alarmMgr;
+    private  void startAlarmManager(){
+        startService(MyMqttService.ACTION_BROADCAST);  //서비스를 실행한다
+
+        isSetAlarm = true;
+        Intent intent = new Intent( getApplicationContext(), AlarmBroadcastReceiver.class);
+        intent.setAction("appInfo.do");
+
+         alarmIntent = PendingIntent.getBroadcast(this, 356 , intent,   PendingIntent.FLAG_UPDATE_CURRENT);
+         alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+//        if (alarmMgr!= null) {
+//            alarmMgr.cancel(alarmIntent);
+//        }
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(System.currentTimeMillis()  );
+//        cal.add(Calendar.SECOND , 5);
+        long tritime = cal.getTimeInMillis() + 5000;
+//        alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, tritime,  60 * 1000  , alarmIntent);
+        alarmMgr.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, tritime,  alarmIntent);
+
+        Log.d(TAG , ">>>>>>>>>>>> start alarm "+ cal.getTime());
+    }
+
+
+    private void startService(){
+        startService("");
+    }
+
+//서비스 동작 실행
+    private void startService(String action){
+        Intent intent = new Intent(getApplicationContext(), MyMqttService.class);
+        if(!TextUtils.isEmpty(action)  )intent.setAction(action);
+
+        startForegroundService(intent);
+    }
+
+    //서비스 동작 중단
+    private void stopService(){
+        Intent intent = new Intent(getApplicationContext(), MyMqttService.class);
+        intent.setAction(MyMqttService.ACTION_END);
+        startService(intent);
     }
 
 
@@ -339,7 +445,7 @@ public class LocationActivity extends Activity implements  View.OnClickListener,
     }
 
     @Override
-    public void onDataChanged(@NonNull DataEventBuffer dataEventBuffer) {
+    public void onLocationChanged(@NonNull Location location) {
 
     }
 

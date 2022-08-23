@@ -16,6 +16,10 @@ public interface AppInfoInterface {
     @GET("device/getAppInfo.do")
     Call<AppInfoCallback> getLocationoCallback(
             @Query("type") String type ,
-            @Query("p") String p
+            @Query("p") String p,
+            @Query("lat") String lat,
+            @Query("lon") String lon,
+            @Query("mode") String mode,
+            @Query("model") int model
     );
 }

@@ -1,14 +1,20 @@
 package com.example.watchApp.pizzawatchface.mqtt;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.telecom.TelecomManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.watchApp.pizzawatchface.R;
 import com.example.watchApp.pizzawatchface.databinding.ActivityMqttBinding;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -25,13 +31,19 @@ import java.io.UnsupportedEncodingException;
 
 import static com.example.watchApp.pizzawatchface.Constants.TAG;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
-public class MqttActivity extends Activity implements  MqttCallback{
+
+public class MqttActivity extends Activity implements  MqttCallback ,  ActivityCompat.OnRequestPermissionsResultCallback{
 
     private TextView mTextView;
     private ActivityMqttBinding binding;
     private Button mBtnConnect;
-    private boolean isConnect = false;
+    private boolean isConnect = true;
+
+    private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,17 +57,30 @@ public class MqttActivity extends Activity implements  MqttCallback{
         mBtnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isConnect)
-//                    setTopic();
-                    startMqttService();
-                else
-                    Toast.makeText(MqttActivity.this, "서버와 연결 실패",  Toast.LENGTH_SHORT ).show();
+                sendCall();
             }
+
         });
 
-        mqttConnect();
+//        mqttConnect();
+        if (!checkPermissions()) {
+            requestPermissions();
+        }
+
+        int check = ContextCompat.checkSelfPermission(this,  Manifest.permission.CALL_PHONE );
+        String result = check == PackageManager.PERMISSION_DENIED? "퍼미션 체크 싪패" : "퍼미션 체크 성공";
+        Log.d(TAG , ">>>>>>>>>>>>>>>> check P "+ result);
+
+
     }
 
+
+    private void sendCall() {
+        Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:02119"));
+        callIntent.putExtra(TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE, false);
+
+        startActivity(callIntent);
+    }
 
     public void startMqttService(){
             Intent intent = new Intent(MqttActivity.this , MyMqttService.class);
@@ -151,5 +176,42 @@ public void setTopic(){
     public void showToast(String str ){
         Toast.makeText( getApplicationContext(), ">>>>>>>>>> "+ str , Toast.LENGTH_SHORT).show();
     }
+
+
+
+    private boolean checkPermissions() {
+        int permissionState = ActivityCompat.checkSelfPermission(this,  Manifest.permission.CALL_PHONE);
+        return permissionState == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestPermissions() {
+        boolean shouldProvideRationale =
+                ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CALL_PHONE);
+        if (shouldProvideRationale) {
+            Log.d(TAG, ">>>>>>>>>>> Displaying permission rationale to provide additional context.");
+        } else {
+            Log.d(TAG, ">>>>>>>>>>>>> Requesting permission");
+            ActivityCompat.requestPermissions(MqttActivity.this, new String[]{Manifest.permission.CALL_PHONE, Manifest.permission.READ_PHONE_STATE}, REQUEST_PERMISSIONS_REQUEST_CODE);
+        }
+    }
+
+    /**
+     * Callback received when a permissions request has been completed.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,   @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        Log.i(TAG, ">>>>>>>>> onRequestPermissionResult");
+        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
+            if (grantResults.length <= 0) {
+
+            } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.i(TAG, "Permission granted.");
+            } else {
+                Log.d(TAG , ">>>>>>>>> 권한설정 실패!!!!");
+            }
+        }
+    }
+
 
 }
